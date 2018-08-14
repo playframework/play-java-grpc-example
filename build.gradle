@@ -57,6 +57,10 @@ model {
     }
 }
 
+configurations {
+    alpnagent
+}
+
 dependencies {
     compile "com.typesafe.play:play_$scalaVersion:$playVersion"
 
@@ -69,6 +73,9 @@ dependencies {
 
     playTest "org.assertj:assertj-core:3.6.2"
     playTest "org.awaitility:awaitility:2.0.0"
+
+    // Configuration for modules that use Jetty ALPN agent
+    alpnagent 'org.mortbay.jetty.alpn:jetty-alpn-agent:2.0.7'
 }
 
 repositories {
@@ -84,4 +91,8 @@ repositories {
         url "https://repo.lightbend.com/lightbend/ivy-releases"
         layout "ivy"
     }
+}
+
+tasks.withType(PlayRun) {
+    forkOptions.jvmArgs = ['-javaagent:' + configurations.alpnagent.asPath]
 }
