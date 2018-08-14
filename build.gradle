@@ -45,6 +45,10 @@ model {
             injectedRoutesGenerator = true
 
             sources {
+                extraJava(JavaSourceSet) {
+                    source.srcDir "build/generated/source/proto/main/java"
+                    source.srcDir "build/generated/source/proto/main/akkaGrpc"
+                }
                 twirlTemplates {
                     defaultImports = TwirlImports.JAVA
                 }
@@ -55,8 +59,12 @@ model {
 
 dependencies {
     compile "com.typesafe.play:play_$scalaVersion:$playVersion"
+
     play "com.typesafe.play:play-guice_$scalaVersion:$playVersion"
     play "com.typesafe.play:play-logback_$scalaVersion:$playVersion"
+    play "com.typesafe.play:play-akka-http-server_$scalaVersion:$playVersion"
+    play "com.lightbend.akka.grpc:akka-grpc-runtime_$scalaVersion:0.1+125-f0fcbe6e"
+    play "io.grpc:grpc-stub:1.14.0"
     play "com.h2database:h2:1.4.197"
 
     playTest "org.assertj:assertj-core:3.6.2"
