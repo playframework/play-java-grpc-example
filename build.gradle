@@ -14,7 +14,7 @@ buildscript {
   dependencies {
     // see https://plugins.gradle.org/plugin/com.lightbend.akka.grpc.gradle
     // for the currently latest version.
-    classpath 'com.lightbend.akka.grpc:akka-grpc-gradle-plugin:0.1+125-f0fcbe6e'
+    classpath 'com.lightbend.akka.grpc:akka-grpc-gradle-plugin:0.2-RC1+21-c7898457'
     //classpath 'gradle.plugin.com.lightbend.akka.grpc:akka-grpc-gradle-plugin:0.1-RC1'
   }
 }
@@ -25,7 +25,7 @@ plugins {
     id 'java'
 }
 
-def playVersion = "2.7.0-M2"
+def playVersion = "2.7.0-SNAPSHOT"
 def scalaVersion = System.getProperty("scala.binary.version", /* default = */ "2.12")
 
 apply plugin: 'com.lightbend.akka.grpc.gradle'
@@ -67,7 +67,7 @@ dependencies {
     play "com.typesafe.play:play-guice_$scalaVersion:$playVersion"
     play "com.typesafe.play:play-logback_$scalaVersion:$playVersion"
     play "com.typesafe.play:play-akka-http-server_$scalaVersion:$playVersion"
-    play "com.lightbend.akka.grpc:akka-grpc-runtime_$scalaVersion:0.1+125-f0fcbe6e"
+    play "com.lightbend.akka.grpc:akka-grpc-runtime_$scalaVersion:0.2-RC1+21-c7898457"
     play "io.grpc:grpc-stub:1.14.0"
     play "com.h2database:h2:1.4.197"
 
@@ -94,5 +94,13 @@ repositories {
 }
 
 tasks.withType(PlayRun) {
-    forkOptions.jvmArgs = ['-javaagent:' + configurations.alpnagent.asPath]
+    forkOptions.jvmArgs = [
+      '-Dhttps.port=9443',
+      '-Djdk.tls.ephemeralDHKeySize=2048',
+      '-Djdk.tls.rejectClientInitiatedRenegotiation=true',
+      '-Dcom.sun.net.ssl.rsaPreMasterSecretFix=true',
+      '-Dsun.security.ssl.allowUnsafeRenegotiation=false',
+      '-Dsun.security.ssl.allowLegacyHelloMessages=false',
+      '-javaagent:' + configurations.alpnagent.asPath
+    ]
 }
