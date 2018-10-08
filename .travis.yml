@@ -44,4 +44,6 @@ matrix:
     # Play already has a fix for that, but it needs to be backported and released
     # for 2.6.x: https://github.com/playframework/playframework/pull/8382
     - jdk: oraclejdk11
+    # We don't cross-build for 2.11 yet (https://github.com/akka/akka-grpc/issues/345)
+    - scala: 2.11.12
 

@@ -14,7 +14,7 @@ buildscript {
   dependencies {
     // see https://plugins.gradle.org/plugin/com.lightbend.akka.grpc.gradle
     // for the currently latest version.
-    classpath 'com.lightbend.akka.grpc:akka-grpc-gradle-plugin:0.1+123-bdd6a389'
+    classpath 'com.lightbend.akka.grpc:akka-grpc-gradle-plugin:0.2-RC1+21-c7898457'
     //classpath 'gradle.plugin.com.lightbend.akka.grpc:akka-grpc-gradle-plugin:0.1-RC1'
   }
 }
@@ -25,10 +25,9 @@ plugins {
     id 'java'
 }
 
-def playVersion = "2.7.0-M2"
+def playVersion = "2.7.0-SNAPSHOT"
 def scalaVersion = System.getProperty("scala.binary.version", /* default = */ "2.12")
 
-apply plugin: 'com.google.protobuf'
 apply plugin: 'com.lightbend.akka.grpc.gradle'
 
 // Enable Akka gRPC plugin, and generate Play modules:
@@ -46,6 +45,10 @@ model {
             injectedRoutesGenerator = true
 
             sources {
+                extraJava(JavaSourceSet) {
+                    source.srcDir "build/generated/source/proto/main/java"
+                    source.srcDir "build/generated/source/proto/main/akkaGrpc"
+                }
                 twirlTemplates {
                     defaultImports = TwirlImports.JAVA
                 }
@@ -54,13 +57,25 @@ model {
     }
 }
 
+configurations {
+    alpnagent
+}
+
 dependencies {
+    compile "com.typesafe.play:play_$scalaVersion:$playVersion"
+
     play "com.typesafe.play:play-guice_$scalaVersion:$playVersion"
     play "com.typesafe.play:play-logback_$scalaVersion:$playVersion"
+    play "com.typesafe.play:play-akka-http-server_$scalaVersion:$playVersion"
+    play "com.lightbend.akka.grpc:akka-grpc-runtime_$scalaVersion:0.2-RC1+21-c7898457"
+    play "io.grpc:grpc-stub:1.14.0"
     play "com.h2database:h2:1.4.197"
 
     playTest "org.assertj:assertj-core:3.6.2"
     playTest "org.awaitility:awaitility:2.0.0"
+
+    // Configuration for modules that use Jetty ALPN agent
+    alpnagent 'org.mortbay.jetty.alpn:jetty-alpn-agent:2.0.7'
 }
 
 repositories {
@@ -76,4 +91,16 @@ repositories {
         url "https://repo.lightbend.com/lightbend/ivy-releases"
         layout "ivy"
     }
+}
+
+tasks.withType(PlayRun) {
+    forkOptions.jvmArgs = [
+      '-Dhttps.port=9443',
+      '-Djdk.tls.ephemeralDHKeySize=2048',
+      '-Djdk.tls.rejectClientInitiatedRenegotiation=true',
+      '-Dcom.sun.net.ssl.rsaPreMasterSecretFix=true',
+      '-Dsun.security.ssl.allowUnsafeRenegotiation=false',
+      '-Dsun.security.ssl.allowLegacyHelloMessages=false',
+      '-javaagent:' + configurations.alpnagent.asPath
+    ]
 }
