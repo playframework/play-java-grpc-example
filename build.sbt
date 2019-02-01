@@ -25,7 +25,7 @@ libraryDependencies += guice
 
 // Test libraries
 val playVersion = play.core.PlayVersion.current
-val playGrpcVersion = "0.5.0-M7"
+val playGrpcVersion = "0.5.0"
 libraryDependencies += "com.lightbend.play"      %% "play-grpc-scalatest" % playGrpcVersion % Test
 libraryDependencies += "com.lightbend.play"      %% "play-grpc-specs2"    % playGrpcVersion % Test
 libraryDependencies += "com.typesafe.play"       %% "play-test"           % playVersion     % Test
@@ -47,4 +47,4 @@ testOptions in Test := Seq(Tests.Argument(TestFrameworks.JUnit, "-a", "-v"))
 //    sbt "project docs" "~ paradox"
 //    open docs/target/paradox/site/main/index.html
 lazy val docs = (project in file("docs"))
-  .enablePlugins(ParadoxPlugin) 
+  .enablePlugins(ParadoxPlugin)
